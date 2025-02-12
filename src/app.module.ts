@@ -7,10 +7,12 @@ import { Country } from './country/entity/country.entity';
 import { CountryModule } from './country/country.module';
 import { TimeseriesModule } from './timeseries/timeseries.module';
 import { CountryListModule } from './get-all-data/countrylist/countrylist.module';
+import { OverviewCasesModule } from './get-all-data/overview-cases/overviewcases.module';
 @Module({
   imports: [CountryModule,
   TimeseriesModule,
   CountryListModule,
+  OverviewCasesModule,
   TypeOrmModule.forRoot({
     type: 'postgres',
     host: 'localhost',

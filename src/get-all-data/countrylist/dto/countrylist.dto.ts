@@ -2,11 +2,9 @@ import { IsOptional, IsString } from "class-validator";
 
 export class CountryList{
 
-
-
     @IsString()
     @IsOptional()
-    name?: string;
+    name? :string;
 
 
     @IsString()
