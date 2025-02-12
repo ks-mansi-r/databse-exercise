@@ -6,9 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Country } from './country/entity/country.entity';
 import { CountryModule } from './country/country.module';
 import { TimeseriesModule } from './timeseries/timeseries.module';
+import { CountryListModule } from './get-all-data/countrylist/countrylist.module';
 @Module({
   imports: [CountryModule,
   TimeseriesModule,
+  CountryListModule,
   TypeOrmModule.forRoot({
     type: 'postgres',
     host: 'localhost',
