@@ -10,6 +10,7 @@ import { CountryListModule } from './get-all-data/countrylist/countrylist.module
 import { OverviewCasesModule } from './get-all-data/overview-cases/overviewcases.module';
 import { CountryWiseModule } from './get-all-data/countrywise/countrywise.module';
 import { MonthWiseModule } from './get-all-data/monthwise/monthwise.module';
+import { TopCasesModule } from './get-all-data/top-n-cases/topcases.module';
 @Module({
   imports: [CountryModule,
   TimeseriesModule,
@@ -17,6 +18,7 @@ import { MonthWiseModule } from './get-all-data/monthwise/monthwise.module';
   OverviewCasesModule,
   CountryWiseModule,
   MonthWiseModule,
+  TopCasesModule,
   TypeOrmModule.forRoot({
     type: 'postgres',
     host: 'localhost',
