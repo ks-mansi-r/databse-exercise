@@ -7,6 +7,7 @@ import {
     Param,
     Body,
     ParseIntPipe,
+    Put,
   } from '@nestjs/common';
   import { TimeSeriesService } from './timeseries.service';
   import { AddTimeSeriesDto } from './dto/add-timeseries.dto';
@@ -21,7 +22,7 @@ import {
       return this.timeSeriesService.addTimeSeries(dto);
     }
   
-    @Patch(':id')
+    @Put(':id')
     updateTimeSeries(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTimeSeriesDto) {
       return this.timeSeriesService.updateTimeSeries(id, dto);
     }

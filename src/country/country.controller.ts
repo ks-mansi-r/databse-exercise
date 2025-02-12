@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Patch,
+  Put,
   Delete,
   Get,
   Param,
@@ -21,7 +22,7 @@ export class CountryController {
     return this.countryService.addCountry(dto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   updateCountry(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateCountryDto) {
     return this.countryService.updateCountry(id, dto);
   }

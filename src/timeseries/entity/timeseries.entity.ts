@@ -15,7 +15,7 @@ export class TimeSeries {
   @Column({ type: 'int' })
   deaths: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int',nullable:true })
   recovered: number;
 
   @ManyToOne(() => Country, (country) => country.timeseries, { onDelete: 'CASCADE' })
