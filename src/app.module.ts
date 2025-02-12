@@ -11,6 +11,7 @@ import { OverviewCasesModule } from './get-all-data/overview-cases/overviewcases
 import { CountryWiseModule } from './get-all-data/countrywise/countrywise.module';
 import { MonthWiseModule } from './get-all-data/monthwise/monthwise.module';
 import { TopCasesModule } from './get-all-data/top-n-cases/topcases.module';
+import { ExcelModule } from './get-all-data/excel/excel.module';
 @Module({
   imports: [CountryModule,
   TimeseriesModule,
@@ -19,6 +20,7 @@ import { TopCasesModule } from './get-all-data/top-n-cases/topcases.module';
   CountryWiseModule,
   MonthWiseModule,
   TopCasesModule,
+  ExcelModule,
   TypeOrmModule.forRoot({
     type: 'postgres',
     host: 'localhost',
