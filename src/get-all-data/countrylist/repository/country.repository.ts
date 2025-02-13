@@ -10,20 +10,21 @@ export class CountryRepository extends Repository<Country>{
         super(Country, datasource.createEntityManager());
     }
 
-   public  async GetCountryList(name?: string, isoCode?:string){
-
-        const whereConditions: any = {};
+   public  async GetCountryList(name?: string, isoCode?:string)
+   :Promise<Country[]>{
+    const query = this.createQueryBuilder('country');
+      
   
         if (name) {
-          whereConditions.name = name; 
+         query.andWhere('country.name=:name',{ name });
           // Exact match for country name
         }
       
         if (isoCode) {
-          whereConditions.isoCode = isoCode; 
+         query.andWhere('country.isoCode=:isoCode',{ isoCode });
           // Exact match for ISO code
         }
 
-        return await this.find({ where: whereConditions });
+        return await query.getMany();
     }
 }

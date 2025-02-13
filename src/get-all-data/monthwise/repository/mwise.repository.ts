@@ -17,6 +17,7 @@ export class MonthRepository extends Repository<TimeSeries> {
     super(TimeSeries, dataSource.createEntityManager());
   }
 
+  
   async getCountryCase(
     fromDate?: string,
     toDate?: string,
