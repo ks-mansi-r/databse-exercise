@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Country } from './entity/country.entity';
 import { AddCountryDto } from './dto/add-country.dto';
 import { UpdateCountryDto } from './dto/update-country.dto';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 @Injectable()
 export class CountryService {
   constructor(
@@ -58,6 +58,14 @@ export class CountryService {
   }
 
   async getCountry(id: number) {
+
+    //if the countryId is not found, return a 404 error with an appropriate error message.
+    
+    try{
     return this.countryRepository.findOne({ where: { id }, relations: ['timeseries'] });
   }
+  catch(error){
+    throw new NotFoundException('Country is not found for this id ');
+  }
+}
 }
