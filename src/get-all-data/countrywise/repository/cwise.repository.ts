@@ -9,63 +9,44 @@ export class CwiseRepository extends Repository<TimeSeries> {
   }
 
   // Custom method to get country cases
-  public async getCountryCase(fromDate?: string,toDate?: string,confirmedGte?: number,confirmedLte?: number,
+  public async getCountryCase(fromDate?: string, toDate?: string, confirmedGte?: number, confirmedLte?: number,
   ): Promise<{ country: string; totals: { confirmed: number; deaths: number; recovered: number } }[]> {
-    
+
     const query = this.createQueryBuilder('timeseries')
-      .leftJoinAndSelect('timeseries.country', 'country');
+      
+    .select('country.name', 'country')
+    .addSelect('SUM(timeseries.confirmed)', 'confirmed')
+    .addSelect('SUM(timeseries.deaths)', 'deaths')
+    .addSelect('SUM(timeseries.recovered)', 'recovered')
+    .innerJoin('timeseries.country', 'country')
+    .groupBy('country.name');
 
-    if (fromDate) {
-      query.andWhere('timeseries.date >= :fromDate', { fromDate });
-    }
+  if (fromDate) {
+    query.andWhere('timeseries.date >= :fromDate', { fromDate });
+  }
 
-    if (toDate) {
-      query.andWhere('timeseries.date <= :toDate', { toDate });
-    }
+  if (toDate) {
+    query.andWhere('timeseries.date <= :toDate', { toDate });
+  }
 
-    const timeSeriesData = await query.getMany();
+  if (confirmedGte !== undefined) {
+    query.having('SUM(timeseries.confirmed) >= :confirmedGte', { confirmedGte });
+  }
 
-    //group the retrieved data by country
-    const groupedByCountry = timeSeriesData.reduce((acc, entry) => {
-      if (!acc[entry.country.name]) {
-        acc[entry.country.name] = [];
-      }
-      acc[entry.country.name].push(entry);
-      return acc;
-    }, {} as { [key: string]: TimeSeries[] });
+  if (confirmedLte !== undefined) {
+    query.having('SUM(timeseries.confirmed) <= :confirmedLte', { confirmedLte });
+  }
 
+  const resultData = await query.getRawMany();
 
-    // Initialize the response array to hold the results
-    const response: { country: string; totals: { confirmed: number; deaths: number; recovered: number } }[] = [];
+  return resultData.map(row => ({
+    country: row.country,
+    totals: {
+      confirmed: Number(row.confirmed),
+      deaths: Number(row.deaths),
+      recovered: Number(row.recovered),
+    },
+  }));
 
-    //total cases sum
-    for (const [country, data] of Object.entries(groupedByCountry)) {
-      const totals = data.reduce(
-        (acc, curr) => {
-          acc.confirmed += curr.confirmed;
-          acc.deaths += curr.deaths;
-          acc.recovered += curr.recovered;
-          return acc;
-        },
-        { confirmed: 0, deaths: 0, recovered: 0 },
-      );
-
-
-      // Apply confirmed cases filters
-      if (
-        (confirmedGte !== undefined && totals.confirmed < confirmedGte) ||
-        (confirmedLte !== undefined && totals.confirmed > confirmedLte)
-      ) {
-        continue;
-      }
-
-      // Add the country's totals to the response
-      response.push({
-        country,
-        totals,
-      });
-    }
-
-    return response;
   }
 }
