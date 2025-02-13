@@ -12,7 +12,7 @@ export class ExcelService {
     private readonly countryRepo: Repository<Country>,
   ) {}
 
-  async generateExcel(isoCodes?: string[], year?: number) {
+ public async generateExcel(isoCodes?: string[], year?: number) {
     const query = this.countryRepo
       .createQueryBuilder('country')
       .leftJoinAndSelect('country.timeSeries', 'timeSeries');
