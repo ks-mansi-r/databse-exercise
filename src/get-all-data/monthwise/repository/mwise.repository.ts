@@ -17,78 +17,45 @@ export class MonthRepository extends Repository<TimeSeries> {
     super(TimeSeries, dataSource.createEntityManager());
   }
 
-  // Custom method to get country cases with filters
-  public async getCountryCase(
+  async getCountryCase(
     fromDate?: string,
     toDate?: string,
     confirmedGte?: number,
     confirmedLte?: number,
   ): Promise<CountryCase[]> {
-    const result: CountryCase[] = [];
+    const query = this.createQueryBuilder('ts')
+      .select('ts.country', 'country')
+      .addSelect("TO_CHAR(ts.date, 'YYYY-MM')", 'month')
+      .addSelect('SUM(ts.confirmed)', 'confirmed')
+      .addSelect('SUM(ts.deaths)', 'deaths')
+      .addSelect('SUM(ts.recovered)', 'recovered')
+      .groupBy('ts.country')
+      .addGroupBy("TO_CHAR(ts.date, 'YYYY-MM')");
 
-    // Use 'this' to access inherited Repository methods
-    const timeseriesData = await this.find();
+    if (fromDate) {
+      query.andWhere('ts.date >= :fromDate', { fromDate });
+    }
 
-    const monthlyDataByCountry: {
-      [country: string]: {
-        [month: string]: {
-          confirmed: number;
-          deaths: number;
-          recovered: number;
-        };
-      };
-    } = {};
+    if (toDate) {
+      query.andWhere('ts.date <= :toDate', { toDate });
+    }
 
-    // Date parsing logic
-    const from = fromDate ? parse(fromDate, 'yyyy-MM-dd', new Date()) : new Date(0);
-    const to = toDate ? parse(toDate, 'yyyy-MM-dd', new Date()) : new Date();
+    if (confirmedGte !== undefined) {
+      query.having('SUM(ts.confirmed) >= :confirmedGte', { confirmedGte });
+    }
 
-    // Group timeseries data by country and month
-    timeseriesData.forEach((input) => {
-      const date = parse(input.date, 'yyyy-MM-dd', new Date());
-      const month = format(date, 'yyyy-MM');
+    if (confirmedLte !== undefined) {
+      query.having('SUM(ts.confirmed) <= :confirmedLte', { confirmedLte });
+    }
 
-      // Skip entries outside the specified date range
-      if (date < from || date > to) return;
+    const results = await query.getRawMany();
 
-      if (!monthlyDataByCountry[input.id]) {
-        monthlyDataByCountry[input.id] = {};
-      }
-
-      if (!monthlyDataByCountry[input.id][month]) {
-        monthlyDataByCountry[input.id][month] = {
-          confirmed: 0,
-          deaths: 0,
-          recovered: 0,
-        };
-      }
-
-      // Accumulate the data
-      monthlyDataByCountry[input.id][month].confirmed += input.confirmed;
-      monthlyDataByCountry[input.id][month].deaths += input.deaths;
-      monthlyDataByCountry[input.id][month].recovered += input.recovered;
-    });
-
-    // Filter and compile the results based on confirmed case count range
-    Object.entries(monthlyDataByCountry).forEach(([country, months]) => {
-      Object.entries(months).forEach(([month, { confirmed, deaths, recovered }]) => {
-        const isWithinRange =
-        
-          (confirmedGte === undefined || confirmed >= confirmedGte) &&
-          (confirmedLte === undefined || confirmed <= confirmedLte);
-
-        if (isWithinRange) {
-          result.push({
-            country,
-            month,
-            confirmed,
-            deaths,
-            recovered,
-          });
-        }
-      });
-    });
-
-    return result;
+    return results.map((result) => ({
+      country: result.country,
+      month: result.month,
+      confirmed: parseInt(result.confirmed, 10),
+      deaths: parseInt(result.deaths, 10),
+      recovered: parseInt(result.recovered, 10),
+    }));
   }
 }
