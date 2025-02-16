@@ -6,13 +6,13 @@ export class Country {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', unique: true, nullable: false })
+  @Column({ type: 'varchar', unique: true })
   name: string;
 
-  @Column({ type: 'varchar', unique: true, nullable: false })
+  @Column({ type: 'varchar', unique: true })
   isoCode: string;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'varchar' })
   flag: string;
 
   @OneToMany(() => TimeSeries, (time) => time.country)

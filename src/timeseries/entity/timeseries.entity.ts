@@ -1,5 +1,5 @@
 import { Country } from 'src/country/entity/country.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, JoinColumn,Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class TimeSeries {
@@ -15,9 +15,10 @@ export class TimeSeries {
   @Column({ type: 'int' })
   deaths: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int',nullable:true })
   recovered: number;
 
   @ManyToOne(() => Country, (country) => country.timeseries, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'country_id' })
   country: Country;
 }
