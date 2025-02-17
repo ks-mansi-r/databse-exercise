@@ -12,6 +12,11 @@ import { CountryWiseModule } from './get-all-data/countrywise/countrywise.module
 import { MonthWiseModule } from './get-all-data/monthwise/monthwise.module';
 import { TopCasesModule } from './get-all-data/top-n-cases/topcases.module';
 import { ExcelModule } from './get-all-data/excel/excel.module';
+import { ConfigModule } from '@nestjs/config';
+import { FileUploadModule } from './file-upload/file-upload.module';
+
+const ENV = process.env.NODE_ENV;
+
 @Module({
   imports: [CountryModule,
   TimeseriesModule,
@@ -21,6 +26,9 @@ import { ExcelModule } from './get-all-data/excel/excel.module';
   MonthWiseModule,
   TopCasesModule,
   ExcelModule,
+  FileUploadModule,
+
+  
   TypeOrmModule.forRoot({
     type: 'postgres',
     host: 'localhost',

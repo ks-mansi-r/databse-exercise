@@ -22,14 +22,15 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('NestJs - Covid Data use database API')
-    .setDescription('Use the base API URL as http://localhost:3000')
-    .addServer('http://localhost:3000')
+    .setDescription('Use the base API URL as http://localhost:3300')
+    .addServer('http://localhost:3300')
     .setVersion('1.0')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3000);
+  
+  await app.listen(3300);
 }
 bootstrap();
