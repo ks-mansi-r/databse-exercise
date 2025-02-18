@@ -14,6 +14,7 @@ import { TopCasesModule } from './get-all-data/top-n-cases/topcases.module';
 import { ExcelModule } from './get-all-data/excel/excel.module';
 import { ConfigModule } from '@nestjs/config';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { QueueModule } from './queue/queue.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -40,6 +41,9 @@ const ENV = process.env.NODE_ENV;
     synchronize: true,
     autoLoadEntities: true,
   }),
+
+  
+  QueueModule,
 ],
   controllers: [AppController],
   providers: [AppService],
