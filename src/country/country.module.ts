@@ -5,9 +5,11 @@ import { CountryService } from "./country.service";
 import { Country } from "./entity/country.entity";
 import { TimeSeries } from "src/timeseries/entity/timeseries.entity";
 
+import { CountrysRepository } from './repository/country.repository';
 @Module({
   imports: [TypeOrmModule.forFeature([TimeSeries, Country])],
   controllers: [CountryController],
-  providers: [CountryService],
+  providers: [CountryService, CountrysRepository],
+  // exports:[CountryRepository]
 })
 export class CountryModule {}

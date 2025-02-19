@@ -7,112 +7,52 @@ import { UpdateTimeSeriesDto } from './dto/update-timeseries.dto';
 import { Country } from 'src/country/entity/country.entity';
 import { DataSource } from 'typeorm';
 
-
+import { TimeSeriesRepository } from './repository/time-series.repository';
 @Injectable()
 export class TimeSeriesService {
+  
   constructor(
-    @InjectRepository(TimeSeries)
-    private readonly timeSeriesRepository: Repository<TimeSeries>,
-    @InjectRepository(Country)
-    private readonly countryRepository: Repository<Country>,
-
-    //Inject datasource 
+    private readonly timeSeriesRepository: TimeSeriesRepository,
+    @InjectRepository(Country) private readonly countryRepository,
     private readonly datasource: DataSource,
-
-    
-  ) { }
+   
+  ) {}
 
   async addTimeSeries(data: AddTimeSeriesDto) {
-
-    // create a query runne5r
     const queryRunner = this.datasource.createQueryRunner();
-
-    //connect a query runner
     await queryRunner.connect();
-
-    // Start transcation
     await queryRunner.startTransaction();
-    try {
-
-    }
-    catch (error) {
-      throw new RequestTimeoutException(
-        'Not connect to database please check it ',
-      );
-
-    }
 
     try {
       const country = await this.countryRepository.findOne({ where: { id: data.countryId } });
-      if (!country) {
-        throw new BadRequestException('Country not found.');
-      }
+      if (!country) throw new BadRequestException('Country not found.');
 
-      const timeSeries = this.timeSeriesRepository.create({ ...data, country });
-      return this.timeSeriesRepository.save(timeSeries);
+      const result = await this.timeSeriesRepository.addTimeSeries(data, country);
+      await queryRunner.commitTransaction();
+      return result;
     } catch (error) {
-
-      //If unsuccessfull then rollback transcation
       await queryRunner.rollbackTransaction();
-
-      throw new ConflictException(
-        'Not complete the transaction',)
-    }
-    finally {
-
-      try {
-        // Release transcation
-        await queryRunner.release();
-      } catch (error) {
-        throw new RequestTimeoutException('Not release the connection',
-          {
-            description: String(error),
-          });
-      }
-
+      throw new ConflictException('Transaction failed.');
+    } finally {
+      await queryRunner.release();
     }
   }
 
   async updateTimeSeries(id: number, data: UpdateTimeSeriesDto) {
-
-    try {
-      const timeSeries = await this.timeSeriesRepository.findOne({ where: { id } });
-      if (!timeSeries) {
-        throw new BadRequestException('Time series entry not found.');
-      }
-
-      Object.assign(timeSeries, data);
-      return this.timeSeriesRepository.save(timeSeries);
-    } catch (error) {
-      throw new NotFoundException(
-        'Data is not available for this date and country.',
-      )
-    }
+    const updatedEntry = await this.timeSeriesRepository.updateTimeSeries(id, data);
+    if (!updatedEntry) throw new NotFoundException('Time series entry not found.');
+    return updatedEntry;
   }
 
   async deleteTimeSeries(id: number) {
-
-    try {
-      const timeSeries = await this.timeSeriesRepository.findOne({ where: { id } });
-      if (!timeSeries) {
-        throw new BadRequestException('Time series entry not found.');
-      }
-
-      return this.timeSeriesRepository.remove(timeSeries);
-    } catch (error) {
-
-      throw new NotFoundException(
-        'Data is not available for this date and country'
-      )
-    }
+    const deletedEntry = await this.timeSeriesRepository.deleteTimeSeries(id);
+    if (!deletedEntry) throw new NotFoundException('Data not found.');
+    return deletedEntry;
   }
 
   async getTimeSeriesByCountry(countryId: number) {
-    try {
-      return this.timeSeriesRepository.find({ where: { country: { id: countryId } } });
-    }
-    catch (error) {
-      throw new NotFoundException('Data is not available');
-    }
+    return await this.timeSeriesRepository.getTimeSeriesByCountry(countryId);
   }
+
+ 
 }

@@ -15,6 +15,15 @@ import { ExcelModule } from './get-all-data/excel/excel.module';
 import { ConfigModule } from '@nestjs/config';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { QueueModule } from './queue/queue.module';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { User } from './user/user.entity';
+
+
+// import { EmailModule } from './email/email.module';
+import { UserModule } from './user/user.module';
+import { Subscription } from './subscription/entity/subscription.entity';
+
 
 const ENV = process.env.NODE_ENV;
 
@@ -37,15 +46,30 @@ const ENV = process.env.NODE_ENV;
     username: 'user',
     password: 'password',
     database: 'covid_api',
-    entities: [Country, TimeSeries],
+    entities: [Country, TimeSeries, User, Subscription],
     synchronize: true,
     autoLoadEntities: true,
   }),
 
-  
+    MailerModule.forRoot({
+      transport: {
+        host:'sandbox.smtp.mailtrap.io',
+        auth: {
+          user:'86b945783fadf1' ,
+          pass:'060d297c859bfc',
+        },
+      },
+    }),
+
+
   QueueModule,
+  UserModule,
+  SubscriptionModule,
+ 
 ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController,],
+  providers: [AppService,
+ 
+    ],
 })
 export class AppModule {}
